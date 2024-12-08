@@ -37,16 +37,23 @@
 //   );
 // };
 
-import React from "react";
 import { useNavigate } from "react-router-dom"; // Jika menggunakan react-router untuk navigasi
+import { getToken, removeToken } from "../../../utils/authUtils";
+import useFetchData from "../../../hook/useFeatchData";
 
 const MyAccount = () => {
   const navigate = useNavigate(); // React Router untuk navigasi halaman
+  const {data, loading, error} = useFetchData('/users/profile', getToken());
+
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   // Fungsi untuk logout
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn"); // Hapus status login
     localStorage.removeItem("role"); // Hapus role pengguna
+    removeToken() // Hapus Token
     navigate("/login"); // Arahkan pengguna ke halaman login setelah logout
   };
 
@@ -54,6 +61,8 @@ const MyAccount = () => {
   const handleHistori = () => {
     navigate("/my-history"); // Arahkan ke halaman histori
   };
+
+  const userData = data.data.user;
 
   return (
     <section className="myaccount-profil ml-60 py-8 items-center justify-center min-h-screen">
@@ -69,13 +78,13 @@ const MyAccount = () => {
           <div className="lg:w-1/3">
             <div className="bg-primary-10 shadow-md rounded-lg p-6 text-center">
               <img
-                src="./public/assets/images/windah.jpg"
+                src={userData.photo_profile ? userData.photo_profile : "./public/assets/images/windah.jpg"}
                 alt="Profile Picture"
                 className="rounded-full w-32 h-32 mx-auto mb-4"
               />
               <h2 className="text-lg text-secondary-30 font-semibold">Profi Saya</h2>
-              <h4 className="text-lg text-secondary-30 font-semibold">Budiman</h4>
-              <p className="text-secondary-30 mb-4">budiman@gmail.com</p>
+              <h4 className="text-lg text-secondary-30 font-semibold">{userData.username}</h4>
+              <p className="text-secondary-30 mb-4">{userData.email}</p>
 
               <div className="space-x-4">
                 <button
@@ -102,7 +111,7 @@ const MyAccount = () => {
                   <label htmlFor="nama" className="block text-sm font-medium mb-1">
                     Nama
                   </label>
-                  <input type="text" id="nama" defaultValue="Budiman" className="form-input w-full" />
+                  <input type="text" id="nama" defaultValue={userData.username} className="form-input w-full" />
                 </div>
                 <div className="mb-4">
                   <label htmlFor="tgl-lahir" className="block text-sm font-medium mb-1">
@@ -125,7 +134,7 @@ const MyAccount = () => {
                   <label htmlFor="email" className="block text-sm font-medium mb-1">
                     Email
                   </label>
-                  <input type="email" id="email" defaultValue="budiman@gmail.com" className="form-input w-full" />
+                  <input type="email" id="email" defaultValue={userData.email} className="form-input w-full" />
                 </div>
                 <div className="mb-4">
                   <label htmlFor="no-hp" className="block text-sm font-medium mb-1">
@@ -136,7 +145,7 @@ const MyAccount = () => {
                     <input
                       type="text"
                       id="no-hp"
-                      defaultValue="85785505467"
+                      defaultValue={userData.phone_number}
                       className="form-input w-full rounded-l-none"
                     />
                   </div>

@@ -1,9 +1,8 @@
-import React from "react";
 import { PlusCircle, Edit, Trash, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate dari react-router-dom
 
 // Komponen ButtonCRUD untuk aksi CRUD
-const ButtonCRUD = ({ action, onClick }) => {
+const ButtonCRUD = ({ action, onClick, id = "" }) => {
   const navigate = useNavigate(); // Hook untuk navigasi
 
   let buttonText = "";
@@ -24,7 +23,7 @@ const ButtonCRUD = ({ action, onClick }) => {
       buttonText = "Edit";
       Icon = Edit;
       buttonClass = "bg-blue-500 hover:bg-blue-600"; // Biru untuk edit
-      destination = "/admin/product-edit/:id"; // Halaman untuk mengedit produk
+      destination = `/admin/product-edit/${id}`; // Halaman untuk mengedit produk
       break;
 
     case "delete":

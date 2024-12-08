@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import useFetchData from "../../../../../hook/useFeatchData";
 
 const ProductEdit = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+
+  const { id } = useParams();
+  const {data, loading, error} = useFetchData(`/vehicles/${id}`);
   const [product, setProduct] = useState({
-    name: `Brio ${id}`,
-    category: "Mobil",
-    stock: "ready",
+    name: "",
+    category: "",
+    stock: "",
   });
+  
+  
+  useEffect(() => {
+    setProduct({
+      name: data.data.vehicles.name,
+      category: data.data.vehicles.category,
+      stock: data.data.vehicles.status,
+    })
+  }, [data]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  
 
   const handleSave = () => {
     alert(`Product ${id} saved!`);
