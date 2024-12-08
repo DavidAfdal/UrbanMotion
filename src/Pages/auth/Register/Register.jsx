@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css"; // Import the CSS file
+import axiosInstance from "../../../utils/axios";
+import GoogleBtn from "../../../Components/GoogleBtn/GoogleBtn";
 
 const Register = () => {
   const navigate = useNavigate(); // Use navigate from React Router
@@ -39,7 +41,7 @@ const Register = () => {
   };
 
   // Handle form submission
-  const handleRegister = (event) => {
+  const handleRegister = async (event) => {
     event.preventDefault();
 
     // Validate the form
@@ -49,9 +51,46 @@ const Register = () => {
       return; // If there are errors, don't proceed
     }
 
+    try {
+      
+      const registerRequestData = {
+        username: formData.username,
+        email: formData.email,
+        phone_number: formData.nohp,
+        password: formData.password,
+      };
+
+      // Make API call to register user
+      const response = await axiosInstance.post("/auth/register", registerRequestData);
+      console.log(response);
+
+      
+
+      // Handle success response
+      document.getElementById("popupOverlay").style.display = "block";
+      document.getElementById("successPopup").style.display = "block";
+
+      // Clear form data and errors
+      setFormData({
+        username: "",
+        email: "",
+        nohp: "",
+        password: "",
+        terms: false,
+      });
+
+
+    } catch (error) {
+      // Handle error response
+      console.error(error);
+      setErrors((prevState) => ({
+        ...prevState,
+        apiError: "Terjadi kesalahan saat mendaftar.",
+      }))
+    }
+
     // If no errors, show the success popup
-    document.getElementById("popupOverlay").style.display = "block";
-    document.getElementById("successPopup").style.display = "block";
+  
   };
 
   // Close the success popup and navigate to the login page
@@ -108,10 +147,7 @@ const Register = () => {
               </p>
               <p>Atau</p>
               <a href="/dummy">
-                <div className="google-login">
-                  <img alt="Google Logo" height="20" src="/assets/images/google.png" width="20" />
-                  <span>Daftar dengan Google</span>
-                </div>
+                <GoogleBtn/>
               </a>
             </div>
           </div>

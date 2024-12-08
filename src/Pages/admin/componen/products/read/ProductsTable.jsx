@@ -3,27 +3,29 @@ import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom"; // Import Link untuk navigasi
 
-const PRODUCT_DATA = [
-  { id: 1, name: "Brio 1", category: "Mobil", stock: "ready" },
-  { id: 2, name: "Brio 2", category: "Mobil", stock: "ready" },
-  { id: 3, name: "Brio 3", category: "Mobil", stock: "ready" },
-  { id: 4, name: "Brio 4", category: "Mobil", stock: "ready" },
-  { id: 5, name: "Brio 5", category: "Mobil", stock: "booked" },
-];
+// const PRODUCT_DATA = [
+//   { id: 1, name: "Brio 1", category: "Mobil", stock: "ready" },
+//   { id: 2, name: "Brio 2", category: "Mobil", stock: "ready" },
+//   { id: 3, name: "Brio 3", category: "Mobil", stock: "ready" },
+//   { id: 4, name: "Brio 4", category: "Mobil", stock: "ready" },
+//   { id: 5, name: "Brio 5", category: "Mobil", stock: "booked" },
+// ];
 
-const ProductsTable = () => {
+const ProductsTable = ({vehicles}) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(PRODUCT_DATA);
+  const [filteredProducts, setFilteredProducts] = useState(vehicles);
+
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = PRODUCT_DATA.filter(
+    const filtered = vehicles.filter(
       (product) => product.name.toLowerCase().includes(term) || product.category.toLowerCase().includes(term)
     );
 
     setFilteredProducts(filtered);
   };
+
 
   return (
     <motion.div
@@ -66,7 +68,7 @@ const ProductsTable = () => {
           </thead>
 
           <tbody className="divide-y divide-gray-700">
-            {filteredProducts.map((product) => (
+          {filteredProducts.map((product) => (
               <motion.tr
                 key={product.id}
                 initial={{ opacity: 0 }}
@@ -77,7 +79,7 @@ const ProductsTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-10 ">{product.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-10 ">{product.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-10  uppercase ">{product.stock}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-10  uppercase ">{product.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-10 ">
                   {/* Kontainer dengan class 'flex' dan 'space-x-2' untuk ikon horizontal */}
                   <div className="flex space-x-3">
@@ -112,3 +114,6 @@ const ProductsTable = () => {
   );
 };
 export default ProductsTable;
+
+
+

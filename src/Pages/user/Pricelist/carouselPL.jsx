@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./caraousel.css";
-import { useNavigate } from "react-router-dom"; // Jika menggunakan react-router untuk navigasi
+// import { useNavigate } from "react-router-dom"; // Jika menggunakan react-router untuk navigasi
 
 const Carousel = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -1,13 +1,57 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import HeaderAdmin from "../../../componen/Header/headerAdmin";
 import ButtonCRUD from "../../../componen/button/buttonCRUD";
+import useFetchData from "../../../../../hook/useFeatchData";
+import axiosInstance from "../../../../../utils/axios"
+import { getToken } from "../../../../../utils/authUtils";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const token = getToken();
+  const {data, loading, error} = useFetchData(`/vehicles/${id}`);
+  const [product, setProduct] = useState({
+    id: "",
+    name: "",
+    category: "",
+    stock: "",
+  });
+  
+  
+  useEffect(() => {
+    if (data) {
+      setProduct({
+        id: data.data.vehicle.id,
+        name: data.data.vehicle.name,
+        category: data.data.vehicle.category,
+        stock: data.data.vehicle.status,
+      })
+    }
+  }, [data]);
 
-  // Simulate fetching data based on the ID
-  const product = { id, name: `Brio ${id}`, category: "Mobil", stock: "ready" };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  const handleDelete = async(id) => {
+    if (!token) {
+      alert('anda belum login')
+      return
+    }
+    
+     try {
+        await axiosInstance.delete(`/vehicles/${id}`,  
+          {
+            headers: {Authorization: `Bearer ${token}`}
+          }
+      );
+        navigate('/admin/product')
+     } catch (error) {
+        alert(error.message)
+     }
+  }
+
+  
 
   return (
     <div>
@@ -16,8 +60,8 @@ const ProductDetail = () => {
       </div>
       <main className="bg-#F5F6FA max-w-7xl mx-auto py-6 px-4 lg:px-8">
         <div className="flex space-x-4 mb-4 mt-4">
-          <ButtonCRUD action="edit" />
-          <ButtonCRUD action="delete" />
+          <ButtonCRUD action="edit" id={product.id}/>
+          <ButtonCRUD action="delete" onClick={() => handleDelete(product.id)}  />
         </div>
         <p>
           <strong>Nama:</strong> {product.name}

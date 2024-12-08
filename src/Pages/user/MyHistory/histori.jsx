@@ -1,16 +1,32 @@
-import React from "react";
 import { useNavigate } from "react-router-dom"; // If you're using react-router for navigation
 import "./histori.css"; // Assuming you have the correct CSS file
+import useFetchData from "../../../hook/useFeatchData";
+import { getToken, removeToken } from "../../../utils/authUtils";
+import { addDays, formatDate } from "../../../utils/dateFormat";
+import { formatRupiah } from "../../../utils/foramtCurrency";
 
 const Myhistory = () => {
   const navigate = useNavigate(); // React Router for navigation
+  const {data: userData, loading: userLoading, error: errorUser} = useFetchData(`/user/profile`, getToken());
+  const {data: historyData, loading: historyLoading, error: errorHistory} = useFetchData(`/booking/mybooking`, getToken());
+
 
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn"); // Remove login status
     localStorage.removeItem("role"); // Remove user role
+    removeToken();
     navigate("/login"); // Redirect user to login page after logout
   };
+
+  if (userLoading || historyLoading) return <p>Loading...</p>;
+  if (errorUser || errorHistory) return <p>Error: {errorUser || errorHistory}</p>;
+
+
+  const usersData = userData.data.user;
+  const bookingData = historyData.data.bookings;
+
+  
 
   // Navigate to the history page
   const handleHistori = () => {
@@ -31,7 +47,7 @@ const Myhistory = () => {
           <div className="lg:w-1/3">
             <div className="bg-primary-10 shadow-md rounded-lg p-6 text-center">
               <img
-                src="./public/assets/images/windah.jpg"
+                src={usersData.image ? usersData.image : "./public/assets/images/windah.jpg"}
                 alt="Profile Picture"
                 className="rounded-full w-32 h-32 mx-auto mb-4"
               />
@@ -40,8 +56,8 @@ const Myhistory = () => {
                 className="bg-primary-20 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition inline-block text-center">
                 Profil Saya
               </a>
-              <h4 className="text-lg text-secondary-30 font-semibold">Budiman</h4>
-              <p className="text-secondary-30 mb-4">budiman@gmail.com</p>
+              <h4 className="text-lg text-secondary-30 font-semibold">{usersData.name}</h4>
+              <p className="text-secondary-30 mb-4">{usersData.email}</p>
 
               <div className="space-x-4">
                 <button
@@ -69,30 +85,22 @@ const Myhistory = () => {
                     <th className="border-b px-4 py-2">Tanggal Sewa</th>
                     <th className="border-b px-4 py-2">Tanggal Pengembalian</th>
                     <th className="border-b px-4 py-2">Harga</th>
+                    <th className="border-b px-4 py-2">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="border-b px-4 py-2">#1</td>
-                    <td className="border-b px-4 py-2">Toyota Fortuner 2020</td>
-                    <td className="border-b px-4 py-2">12/09/2024</td>
-                    <td className="border-b px-4 py-2">13/09/2024</td>
-                    <td className="border-b px-4 py-2">Rp1,5jt</td>
+                  {bookingData.map((booking, index) => (
+
+                  <tr key={booking.id}>
+                    <td className="border-b px-4 py-2"># {index + 1}</td>
+                    <td className="border-b px-4 py-2">{booking.vehicle.name}</td>
+                    <td className="border-b px-4 py-2">{formatDate(booking.rental_date)}</td>
+                    <td className="border-b px-4 py-2">{addDays(booking.rental_date, booking.total_days)}</td>
+                    <td className="border-b px-4 py-2">Rp{formatRupiah(booking.total_amount)}</td>
+                    <td className="border-b px-4 py-2">{booking.status}</td>
                   </tr>
-                  <tr>
-                    <td className="border-b px-4 py-2">#2</td>
-                    <td className="border-b px-4 py-2">Innova Reborn</td>
-                    <td className="border-b px-4 py-2">24/10/2024</td>
-                    <td className="border-b px-4 py-2">25/10/2024</td>
-                    <td className="border-b px-4 py-2">Rp800k</td>
-                  </tr>
-                  <tr>
-                    <td className="border-b px-4 py-2">#3</td>
-                    <td className="border-b px-4 py-2">Yamaha Nmax</td>
-                    <td className="border-b px-4 py-2">1/11/2024</td>
-                    <td className="border-b px-4 py-2">2/11/2024</td>
-                    <td className="border-b px-4 py-2">Rp100k</td>
-                  </tr>
+                  ) )}
+            
                 </tbody>
               </table>
             </div>

@@ -7,8 +7,17 @@ import ButtonCRUD from "../../../componen/button/buttonCRUD";
 import { AlertTriangle, DollarSign, Package, TrendingUp } from "lucide-react";
 
 import ProductsTable from "../../../componen/products/read/ProductsTable";
+import useFetchData from "../../../../../hook/useFeatchData";
 
 const ProductsPage = () => {
+  const {data : dataVehicle, loading, error} = useFetchData('/vehicles');
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+
+  const vehicles = dataVehicle.data.vehicles;
+  
   return (
     <div className="flex-1 overflow-auto relative ">
       <HeaderAdmin title="Products" />
@@ -28,7 +37,7 @@ const ProductsPage = () => {
         <div className="space-x-2 mb-4">
           <ButtonCRUD action="add" />
         </div>
-        <ProductsTable />
+        <ProductsTable vehicles={vehicles}/>
       </main>
     </div>
   );

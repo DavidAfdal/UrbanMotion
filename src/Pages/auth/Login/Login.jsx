@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import axiosInstance from "../../../utils/axios";
+import { saveToken } from "../../../utils/authUtils";
+import GoogleBtn from "../../../Components/GoogleBtn/GoogleBtn";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,20 +13,20 @@ const Login = () => {
   const navigate = useNavigate(); // For navigation with React Router
 
   // Dummy data for login
-  const dummyData = [
-    {
-      id: 1,
-      email: "admin@urbanmotion.com",
-      password: "admin123", // Password for admin
-      role: "admin",
-    },
-    {
-      id: 2,
-      email: "user@urbanmotion.com",
-      password: "user123", // Password for user
-      role: "user",
-    },
-  ];
+  // const dummyData = [
+  //   {
+  //     id: 1,
+  //     email: "admin@urbanmotion.com",
+  //     password: "admin123", // Password for admin
+  //     role: "admin",
+  //   },
+  //   {
+  //     id: 2,
+  //     email: "user@urbanmotion.com",
+  //     password: "user123", // Password for user
+  //     role: "user",
+  //   },
+  // ];
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -39,13 +42,21 @@ const Login = () => {
       return;
     }
 
-    // Check if the email and password match the dummy data
-    const user = dummyData.find((u) => u.email === email && u.password === password);
+    try {
+      
+      // Send login request
+      const response = await axiosInstance.post("/auth/login", { email, password });
+
+      // Save response data 
+      const user = response.data.data.user;
+      const token = response.data.data.token;
 
     if (user) {
+
       // Save login status in localStorage (so login state persists on reload)
-      localStorage.setItem("isLoggedIn", true);
+      localStorage.setItem("isLoggedIn", true); // Store login status
       localStorage.setItem("role", user.role); // Store user role
+      saveToken(token); // Store user token
 
       // Redirect based on user role (admin or user)
       if (user.role === "admin") {
@@ -53,10 +64,15 @@ const Login = () => {
       } else if (user.role === "user") {
         navigate("/"); // Redirect to user home page
       }
-    } else {
-      setErrorMessage("Email atau password salah.");
     }
+
+    } catch (error) {
+      console.log(error);
+      setErrorMessage(error.response.data.message);
+    }
+
   };
+
 
   // Check login status when the component first mounts
   useEffect(() => {
@@ -125,12 +141,7 @@ const Login = () => {
                 Belum punya akun? <a href="/register">Daftar</a>
               </p>
               <p>Atau</p>
-              <a href="/dummy">
-                <div className="google-login">
-                  <img alt="Google Logo" height="20" src="/assets/images/google.png" width="20" />
-                  <span>Masuk dengan Google</span>
-                </div>
-              </a>
+              <GoogleBtn/>
             </div>
           </div>
         </div>
